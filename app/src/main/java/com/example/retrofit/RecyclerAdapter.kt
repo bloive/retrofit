@@ -37,7 +37,7 @@ class RecyclerAdapter(private val items: MutableList<ItemModel>)
             GlideToVectorYou
                 .init()
                 .with(binding.root.context)
-                .load(Uri.parse(url), binding.Image)
+                .load(Uri.parse(url), binding.image)
         }
     }
 
