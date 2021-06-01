@@ -56,4 +56,13 @@ dependencies {
 
     //coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1"
+
+    //glide
+    implementation 'com.github.corouteam:GlideToVectorYou:v2.0.0'
+
+    //picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //moshi
+    implementation "com.squareup.moshi:moshi:1.12.0"
 }

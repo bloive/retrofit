@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.retrofit.databinding.FragmentFirstBinding
 import com.google.gson.Gson
@@ -19,6 +20,7 @@ class FirstFragment : Fragment() {
     private lateinit var binding: FragmentFirstBinding
     private lateinit var adapter: RecyclerAdapter
     private var items = mutableListOf<ItemModel>()
+    private val viewModel: CountriesViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,66 +33,31 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
-        setData()
     }
 
     private fun init() {
-        adapter = RecyclerAdapter(items)
+        viewModel.init()
+        initRecycler()
+        observes()
 
+        binding.refresh.setOnRefreshListener {
+            adapter.clearData()
+            viewModel.init()
+        }
+    }
+
+    private fun initRecycler() {
+        adapter = RecyclerAdapter(items)
         binding.recycler.layoutManager = LinearLayoutManager(activity)
         binding.recycler.adapter = adapter
     }
 
-    private fun setData() {
-        CoroutineScope(Dispatchers.IO).launch {
-            getCountries()
-        }
+    private fun observes() {
+        viewModel._loadingLiveData.observe(viewLifecycleOwner, {
+            binding.refresh.isRefreshing = it
+        })
+        viewModel._countriesLiveData.observe(viewLifecycleOwner, {
+            adapter.setData(it.toMutableList())
+        })
     }
-
-    private suspend fun getCountries() {
-        val response = RetrofitService.retrofitService().getCountry()
-        if (response.isSuccessful) {
-            try {
-                val countries = response.body()!!
-                countries.forEach{
-                    items.add(ItemModel(it.name, it.capital, it.borders, it.translations, it.languages))
-                    d("item", it.toString())
-                }
-                d("responceBody", "${items.size}")
-            } catch (e:Exception) {
-                //Todo
-            }
-        }
-    }
-
-
-    // Parse manually
-//    private suspend fun getCountries() {
-//        val response = RetrofitService.retrofitService().getCountry()
-//        if (response.isSuccessful) {
-//            d("response", "${response.body()}")
-//            response.body()?.let { parseJSON(it) }
-//        } else {
-//            //TODO
-//        }
-//    }
-
-//    private fun parseJSON(response: String) {
-//        try {
-//            val countries = JSONArray(response)
-//            for (i in 0 until countries.length()) {
-//                val countryObject = countries.getJSONObject(i)
-//                val name = countryObject.getString("name")
-//                val capital = countryObject.getString("capital")
-//                val borders = countryObject.get("borders") as List<String>
-    //TODO
-//                val translations = countryObject.get("translations") as List<Translation>???//
-//                val languages = countryObject.getString("languages") as List<Language>
-//                items.add(ItemModel(name, capital, borders, translations, languages))
-//            }
-//            d("items", items.toString())
-//        } catch (e:JSONException) {
-//            //TODO
-//        }
-//    }
 }

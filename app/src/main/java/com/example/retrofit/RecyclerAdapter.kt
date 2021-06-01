@@ -1,9 +1,11 @@
 package com.example.retrofit
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.retrofit.databinding.ItemLayoutBinding
+import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou
 
 class RecyclerAdapter(private val items: MutableList<ItemModel>)
     : RecyclerView.Adapter<RecyclerAdapter.MyViewHolder>() {
@@ -26,9 +28,27 @@ class RecyclerAdapter(private val items: MutableList<ItemModel>)
         fun bind() {
             model = items[adapterPosition]
             binding.tvName.text = model.name
-            binding.tvBorders.text = model.borders.toString()
             binding.tvCapital.text = model.capital
             binding.tvLanguages.text = model.languages.toString()
+            loadImg(model.flag)
         }
+
+        private fun loadImg(url: String?) {
+            GlideToVectorYou
+                .init()
+                .with(binding.root.context)
+                .load(Uri.parse(url), binding.Image)
+        }
+    }
+
+    fun setData(items:MutableList<ItemModel>){
+        this.items.clear()
+        this.items.addAll(items)
+        notifyDataSetChanged()
+    }
+
+    fun clearData() {
+        items.clear()
+        notifyDataSetChanged()
     }
 }
